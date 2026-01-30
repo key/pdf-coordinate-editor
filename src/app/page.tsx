@@ -625,8 +625,8 @@ export default function PdfEditorPage() {
                     <span className="text-sm">スナップ</span>
                   </label>
                   <div className="mb-2 text-xs text-gray-500">グリッド幅</div>
-                  <div className="grid grid-cols-4 gap-1">
-                    {[5, 10, 25, 50].map((size) => (
+                  <div className="grid grid-cols-5 gap-1">
+                    {[5, 7.5, 10, 25, 50].map((size) => (
                       <button
                         key={size}
                         onClick={() => setGridSize(size)}
