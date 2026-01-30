@@ -42,7 +42,7 @@ export default function PdfEditorPage() {
   const [newFieldType, setNewFieldType] = useState<'text' | 'checkbox'>('text');
   const [clickedPosition, setClickedPosition] = useState<{ x: number; y: number; width?: number; height?: number } | null>(null);
   const [showGrid, setShowGrid] = useState(true);
-  const [gridSize, setGridSize] = useState(10);
+  const [gridSize, setGridSize] = useState(7.5);
   const [snapEnabled, setSnapEnabled] = useState(true);
   const [showGridPopover, setShowGridPopover] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
