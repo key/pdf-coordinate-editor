@@ -687,6 +687,36 @@ export default function PdfEditorPage() {
               return (
                 <div className="rounded bg-white p-4 shadow">
                   <h3 className="mb-2 font-bold">📝 {field.name}</h3>
+                  {/* タイプ選択 */}
+                  <div className="mb-2 flex gap-2">
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        checked={field.type === 'text'}
+                        onChange={() => {
+                          if (field.type === 'text') return;
+                          const updates: Partial<FieldDefinition> = { type: 'text' };
+                          if (!field.width) {
+                            updates.width = 200;
+                            updates.height = 20;
+                          }
+                          setFields(fields.map(f => f.id === field.id ? {...f, ...updates} : f));
+                        }}
+                      />
+                      テキスト
+                    </label>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="radio"
+                        checked={field.type === 'checkbox'}
+                        onChange={() => {
+                          if (field.type === 'checkbox') return;
+                          setFields(fields.map(f => f.id === field.id ? {...f, type: 'checkbox'} : f));
+                        }}
+                      />
+                      チェック
+                    </label>
+                  </div>
                   <div className="mb-2 flex gap-2">
                     <div>
                       <label className="text-xs text-gray-500">X</label>
