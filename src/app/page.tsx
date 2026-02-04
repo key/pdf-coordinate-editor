@@ -30,7 +30,7 @@ export default function PdfEditorPage() {
   const popoverPos = selectedFieldData
     ? (() => {
         const canvas = editor.pdfToCanvas(selectedFieldData.x, selectedFieldData.y);
-        return { x: canvas.x + 10, y: canvas.y - 10 };
+        return { x: canvas.x + 10, y: canvas.y + 10 };
       })()
     : null;
 

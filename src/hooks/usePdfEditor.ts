@@ -496,7 +496,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
           page: currentPage,
           x: snapToGrid(pdfPos.x),
           y: snapToGrid(pdfPos.y),
-          width: 100,
+          width: 50,
           height: 20,
           fontSize: 10,
         }]);
