@@ -564,23 +564,23 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       if (activeTag === 'INPUT' || activeTag === 'SELECT' || activeTag === 'TEXTAREA') return;
       if ((document.activeElement as HTMLElement)?.isContentEditable) return;
 
-      const step = e.shiftKey ? 10 : 1;
+      const fine = e.shiftKey; // Shift押下 = 1pt微調整
       switch (e.key) {
         case 'ArrowUp':
           e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, y: snapEnabled ? snapToNextGrid(f.y, 1) : f.y + step } : f)));
+          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, y: fine ? f.y + 1 : snapEnabled ? snapToNextGrid(f.y, 1) : f.y + 1 } : f)));
           break;
         case 'ArrowDown':
           e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, y: snapEnabled ? snapToNextGrid(f.y, -1) : f.y - step } : f)));
+          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, y: fine ? f.y - 1 : snapEnabled ? snapToNextGrid(f.y, -1) : f.y - 1 } : f)));
           break;
         case 'ArrowLeft':
           e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, x: snapEnabled ? snapToNextGrid(f.x, -1) : f.x - step } : f)));
+          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, x: fine ? f.x - 1 : snapEnabled ? snapToNextGrid(f.x, -1) : f.x - 1 } : f)));
           break;
         case 'ArrowRight':
           e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, x: snapEnabled ? snapToNextGrid(f.x, 1) : f.x + step } : f)));
+          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, x: fine ? f.x + 1 : snapEnabled ? snapToNextGrid(f.x, 1) : f.x + 1 } : f)));
           break;
         case 'Delete':
         case 'Backspace':
