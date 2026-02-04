@@ -520,25 +520,6 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     setFields((prev) => prev.map((f) => (f.id === id ? { ...f, ...updates } : f)));
   };
 
-  // フィールドをPDF中央に追加
-  const addFieldAtCenter = (type: 'text' | 'checkbox') => {
-    const centerX = Math.round(pdfDimensions.width / 2);
-    const centerY = Math.round(pdfDimensions.height / 2);
-    const newField: FieldDefinition = {
-      id: `field_${Date.now()}`,
-      name: `field_${fields.length + 1}`,
-      type,
-      page: currentPage,
-      x: snapToGrid(centerX),
-      y: snapToGrid(centerY),
-      width: type === 'text' ? 200 : undefined,
-      height: type === 'text' ? 20 : undefined,
-      fontSize: type === 'text' ? 10 : undefined,
-    };
-    setFields((prev) => [...prev, newField]);
-    setSelectedField(newField.id);
-  };
-
   // キーボードイベント
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -644,7 +625,6 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     // フィールド操作
     deleteField,
     updateField,
-    addFieldAtCenter,
 
     // グリッド
     showGrid,

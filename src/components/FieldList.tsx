@@ -7,8 +7,6 @@ interface FieldListProps {
   currentPage: number;
   selectedField: string | null;
   onSelect: (id: string) => void;
-  onAddText: () => void;
-  onAddCheckbox: () => void;
   onPageChange: (page: number) => void;
 }
 
@@ -17,8 +15,6 @@ export function FieldList({
   currentPage,
   selectedField,
   onSelect,
-  onAddText,
-  onAddCheckbox,
   onPageChange,
 }: FieldListProps) {
   return (
@@ -33,8 +29,13 @@ export function FieldList({
       {/* フィールド一覧 */}
       <div className="flex-1 overflow-y-auto">
         {fields.length === 0 ? (
-          <div className="p-4 text-center text-xs text-bp-text/40">
-            PDFをクリックしてフィールドを追加
+          <div className="p-4 text-xs text-bp-text/40 leading-relaxed">
+            <p className="mb-2 text-bp-text/60 font-medium">フィールドの作成方法</p>
+            <ul className="list-none space-y-1.5">
+              <li>クリック → テキストフィールド作成</li>
+              <li>ドラッグ → 矩形サイズで作成</li>
+              <li>ポップオーバーでタイプ変更・削除</li>
+            </ul>
           </div>
         ) : (
           <div className="p-1">
@@ -66,21 +67,6 @@ export function FieldList({
         )}
       </div>
 
-      {/* 追加ボタン */}
-      <div className="flex gap-1 border-t border-bp-border p-2">
-        <button
-          onClick={onAddText}
-          className="flex-1 rounded border border-bp-border px-2 py-1.5 text-xs hover:bg-bp-bg transition-colors"
-        >
-          + テキスト
-        </button>
-        <button
-          onClick={onAddCheckbox}
-          className="flex-1 rounded border border-bp-border px-2 py-1.5 text-xs hover:bg-bp-bg transition-colors"
-        >
-          + チェック
-        </button>
-      </div>
     </div>
   );
 }

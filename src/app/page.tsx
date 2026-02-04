@@ -99,8 +99,6 @@ export default function PdfEditorPage() {
             currentPage={editor.currentPage}
             selectedField={editor.selectedField}
             onSelect={editor.setSelectedField}
-            onAddText={() => editor.addFieldAtCenter('text')}
-            onAddCheckbox={() => editor.addFieldAtCenter('checkbox')}
             onPageChange={editor.setCurrentPage}
           />
         </div>
