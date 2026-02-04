@@ -2,17 +2,20 @@
 
 import { useRef } from 'react';
 import { usePdfEditor } from '@/hooks/usePdfEditor';
+import { DropZone } from '@/components/DropZone';
 
 export default function PdfEditorPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const editor = usePdfEditor({ canvasRef, overlayRef });
 
-  if (editor.isLoading) {
+  // PDF未読み込み → ドロップゾーン表示
+  if (!editor.pdfDoc) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p>読み込み中...</p>
-      </div>
+      <DropZone
+        onFileSelect={editor.loadPdf}
+        isLoading={editor.isLoading}
+      />
     );
   }
 
