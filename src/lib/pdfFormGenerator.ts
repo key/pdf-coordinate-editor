@@ -43,7 +43,13 @@ export async function generateFormPdf(
   pdfArrayBuffer: ArrayBuffer,
   fields: FieldDefinition[],
 ): Promise<Uint8Array> {
-  const { PDFDocument } = await import('pdf-lib');
+  const { PDFDocument, TextAlignment } = await import('pdf-lib');
+
+  const alignmentMap: Record<string, typeof TextAlignment[keyof typeof TextAlignment]> = {
+    left: TextAlignment.Left,
+    center: TextAlignment.Center,
+    right: TextAlignment.Right,
+  };
 
   const pdfDoc = await PDFDocument.load(pdfArrayBuffer);
   const form = pdfDoc.getForm();
@@ -68,6 +74,12 @@ export async function generateFormPdf(
         });
         if (field.fontSize) {
           textField.setFontSize(field.fontSize);
+        }
+        if (field.align) {
+          const alignment = alignmentMap[field.align];
+          if (alignment !== undefined) {
+            textField.setAlignment(alignment);
+          }
         }
       } else if (field.type === 'checkbox') {
         const boxSize = field.fontSize || DEFAULT_CHECKBOX_SIZE;
