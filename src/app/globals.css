@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@source "./src/app/**/*.{js,ts,jsx,tsx,mdx}";
+@source "./src/**/*.{js,ts,jsx,tsx,mdx}";
 
 @theme {
   --color-bp-bg: #f0f4f8;

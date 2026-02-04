@@ -12,7 +12,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   const renderTaskRef = useRef<RenderTask | null>(null);
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pdfjsLib, setPdfjsLib] = useState<typeof import('pdfjs-dist') | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPageRaw] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [scale, setScale] = useState(1.5);
   const [pdfDimensions, setPdfDimensions] = useState({ width: 0, height: 0 });
@@ -52,6 +52,12 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     loadPdfjs();
   }, []);
 
+  // ページ変更時にフィールド選択をクリア
+  const setCurrentPage = useCallback((page: number) => {
+    setCurrentPageRaw(page);
+    setSelectedField(null);
+  }, []);
+
   // PDFファイルを読み込む
   const loadPdf = useCallback(async (file: File) => {
     if (!pdfjsLib) {
@@ -73,7 +79,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     } finally {
       setIsPdfLoading(false);
     }
-  }, [pdfjsLib]);
+  }, [pdfjsLib, setCurrentPage]);
 
   // 座標変換ヘルパー
   const canvasToPdf = (canvasX: number, canvasY: number) => ({
@@ -93,7 +99,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   };
 
   // 次のグリッド線までの移動（矢印キー用）
-  const snapToNextGrid = (currentValue: number, direction: 1 | -1): number => {
+  const snapToNextGrid = useCallback((currentValue: number, direction: 1 | -1): number => {
     if (!snapEnabled) return Math.max(0, currentValue + direction);
     const currentGrid = Math.floor(currentValue / gridSize) * gridSize;
     if (direction > 0) {
@@ -102,7 +108,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       const next = currentValue === currentGrid ? currentGrid - gridSize : currentGrid;
       return Math.max(0, next);
     }
-  };
+  }, [snapEnabled, gridSize]);
 
   // フィールドがクリック位置の近くにあるかチェック
   const findFieldAtPosition = (canvasX: number, canvasY: number): FieldDefinition | null => {
@@ -155,7 +161,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   };
 
   // グリッド描画（Blueprint風）
-  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number, scale: number, pdfWidth: number, pdfHeight: number) => {
+  const drawGrid = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number, scale: number, pdfWidth: number, pdfHeight: number) => {
     // 方眼紙風の薄いグリッド
     ctx.strokeStyle = 'rgba(191, 219, 254, 0.5)'; // bp-grid
     ctx.lineWidth = 0.5;
@@ -190,10 +196,10 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       if (canvasY < 0) break;
       ctx.fillText(`${pdfY}`, 1, canvasY - 1);
     }
-  };
+  }, [gridSize]);
 
   // フィールドマーカー描画（Blueprint風）
-  const drawFieldMarkers = (ctx: CanvasRenderingContext2D, scale: number, pdfHeight: number) => {
+  const drawFieldMarkers = useCallback((ctx: CanvasRenderingContext2D, scale: number, pdfHeight: number) => {
     fields
       .filter((f) => f.page === currentPage)
       .forEach((field) => {
@@ -269,7 +275,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
         ctx.fillStyle = '#fff';
         ctx.fillText(field.name, canvasX + 7, canvasY - 4);
       });
-  };
+  }, [fields, currentPage, selectedField, hoveredField]);
 
   // ページをレンダリング
   const renderPage = useCallback(async () => {
@@ -321,7 +327,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       }
       console.error('Failed to render page:', error);
     }
-  }, [pdfDoc, currentPage, scale, showGrid, gridSize, fields, selectedField, hoveredField]);
+  }, [pdfDoc, currentPage, scale, showGrid, canvasRef, overlayRef, drawGrid, drawFieldMarkers]);
 
   // オーバーレイに選択矩形を描画
   useEffect(() => {
@@ -379,7 +385,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     ctx.fillStyle = '#000';
     ctx.font = '12px monospace';
     ctx.fillText(`${pdfWidth} × ${pdfHeightVal} pt`, left + 5, top + 15);
-  }, [isSelecting, selectionStart, selectionEnd, scale, snapEnabled, gridSize, pdfDimensions]);
+  }, [isSelecting, selectionStart, selectionEnd, scale, snapEnabled, gridSize, pdfDimensions, overlayRef]);
 
   // マウスダウン
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -582,7 +588,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedField, snapEnabled, gridSize]);
+  }, [selectedField, snapEnabled, gridSize, snapToNextGrid]);
 
   // JSONエクスポート
   const exportJson = () => {
@@ -604,6 +610,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   const importJson = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
 
     const reader = new FileReader();
     reader.onload = (event) => {

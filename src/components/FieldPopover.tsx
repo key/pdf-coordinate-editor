@@ -78,6 +78,7 @@ export function FieldPopover({ field, position, onUpdate, onDelete, onClose }: F
         <label className="flex items-center gap-1 text-xs cursor-pointer">
           <input
             type="radio"
+            name={`field-type-${field.id}`}
             checked={field.type === 'text'}
             onChange={() => handleTypeChange('text')}
             className="h-3 w-3"
@@ -87,6 +88,7 @@ export function FieldPopover({ field, position, onUpdate, onDelete, onClose }: F
         <label className="flex items-center gap-1 text-xs cursor-pointer">
           <input
             type="radio"
+            name={`field-type-${field.id}`}
             checked={field.type === 'checkbox'}
             onChange={() => handleTypeChange('checkbox')}
             className="h-3 w-3"
