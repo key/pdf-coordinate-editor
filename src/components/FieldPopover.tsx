@@ -47,9 +47,14 @@ export function FieldPopover({ field, position, onUpdate, onDelete, onClose }: F
   const handleTypeChange = (type: 'text' | 'checkbox') => {
     if (type === field.type) return;
     const updates: Partial<FieldDefinition> = { type };
-    if (type === 'text' && !field.width) {
+    if (type === 'text') {
       updates.width = 200;
       updates.height = 20;
+      updates.fontSize = 10;
+    } else {
+      updates.width = undefined;
+      updates.height = undefined;
+      updates.fontSize = undefined;
     }
     onUpdate(field.id, updates);
   };

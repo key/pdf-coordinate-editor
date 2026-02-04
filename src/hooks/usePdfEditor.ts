@@ -193,40 +193,53 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
         const isHovered = field.id === hoveredField;
         const markerSize = isSelected ? 8 : isHovered ? 7 : 6;
 
-        // テキストフィールドの矩形（破線）
-        if (field.width && field.height) {
-          const rectWidth = field.width * scale;
-          const rectHeight = field.height * scale;
-
-          ctx.fillStyle = isSelected
-            ? 'rgba(37, 99, 235, 0.1)'
-            : isHovered
-              ? 'rgba(59, 130, 246, 0.08)'
-              : 'rgba(59, 130, 246, 0.05)';
-          ctx.fillRect(canvasX, canvasY - rectHeight, rectWidth, rectHeight);
-
-          ctx.strokeStyle = isSelected ? '#2563eb' : isHovered ? '#3b82f6' : '#3b82f680';
-          ctx.lineWidth = isSelected ? 2 : 1;
-          ctx.setLineDash(isSelected ? [] : [4, 3]);
-          ctx.strokeRect(canvasX, canvasY - rectHeight, rectWidth, rectHeight);
-          ctx.setLineDash([]);
-        }
-
-        // クロスヘア
         ctx.strokeStyle = isSelected ? '#2563eb' : isHovered ? '#3b82f6' : '#3b82f680';
         ctx.lineWidth = isSelected ? 2 : 1;
 
-        ctx.beginPath();
-        ctx.moveTo(canvasX, canvasY - markerSize);
-        ctx.lineTo(canvasX, canvasY + markerSize);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(canvasX - markerSize, canvasY);
-        ctx.lineTo(canvasX + markerSize, canvasY);
-        ctx.stroke();
-
         if (field.type === 'checkbox') {
-          ctx.strokeRect(canvasX - 6, canvasY - 6, 12, 12);
+          // チェックボックス: 固定サイズの正方形
+          const boxSize = 12 * scale;
+          ctx.fillStyle = isSelected
+            ? 'rgba(37, 99, 235, 0.15)'
+            : isHovered
+              ? 'rgba(59, 130, 246, 0.1)'
+              : 'rgba(59, 130, 246, 0.05)';
+          ctx.fillRect(canvasX, canvasY - boxSize, boxSize, boxSize);
+          ctx.strokeRect(canvasX, canvasY - boxSize, boxSize, boxSize);
+
+          // チェックマーク
+          ctx.beginPath();
+          ctx.moveTo(canvasX + boxSize * 0.2, canvasY - boxSize * 0.5);
+          ctx.lineTo(canvasX + boxSize * 0.45, canvasY - boxSize * 0.2);
+          ctx.lineTo(canvasX + boxSize * 0.8, canvasY - boxSize * 0.75);
+          ctx.stroke();
+        } else {
+          // テキストフィールドの矩形（破線）
+          if (field.width && field.height) {
+            const rectWidth = field.width * scale;
+            const rectHeight = field.height * scale;
+
+            ctx.fillStyle = isSelected
+              ? 'rgba(37, 99, 235, 0.1)'
+              : isHovered
+                ? 'rgba(59, 130, 246, 0.08)'
+                : 'rgba(59, 130, 246, 0.05)';
+            ctx.fillRect(canvasX, canvasY - rectHeight, rectWidth, rectHeight);
+
+            ctx.setLineDash(isSelected ? [] : [4, 3]);
+            ctx.strokeRect(canvasX, canvasY - rectHeight, rectWidth, rectHeight);
+            ctx.setLineDash([]);
+          }
+
+          // クロスヘア
+          ctx.beginPath();
+          ctx.moveTo(canvasX, canvasY - markerSize);
+          ctx.lineTo(canvasX, canvasY + markerSize);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(canvasX - markerSize, canvasY);
+          ctx.lineTo(canvasX + markerSize, canvasY);
+          ctx.stroke();
         }
 
         // リサイズハンドル
