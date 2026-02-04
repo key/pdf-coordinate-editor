@@ -18,9 +18,6 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   const [pdfDimensions, setPdfDimensions] = useState({ width: 0, height: 0 });
   const [fields, setFields] = useState<FieldDefinition[]>([]);
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [newFieldName, setNewFieldName] = useState('');
-  const [newFieldType, setNewFieldType] = useState<'text' | 'checkbox'>('text');
-  const [clickedPosition, setClickedPosition] = useState<{ x: number; y: number; width?: number; height?: number } | null>(null);
   const [showGrid, setShowGrid] = useState(true);
   const [gridSize, setGridSize] = useState(7.5);
   const [snapEnabled, setSnapEnabled] = useState(true);
@@ -288,26 +285,6 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
 
       drawFieldMarkers(context, scale, originalViewport.height);
 
-      if (clickedPosition?.width && clickedPosition?.height && !isSelecting) {
-        const left = clickedPosition.x * scale;
-        const bottom = (originalViewport.height - clickedPosition.y) * scale;
-        const width = clickedPosition.width * scale;
-        const height = clickedPosition.height * scale;
-
-        context.fillStyle = 'rgba(59, 130, 246, 0.15)';
-        context.fillRect(left, bottom - height, width, height);
-        context.strokeStyle = '#3b82f6';
-        context.lineWidth = 2;
-        context.setLineDash([5, 5]);
-        context.strokeRect(left, bottom - height, width, height);
-        context.setLineDash([]);
-
-        context.fillStyle = '#ef4444';
-        context.beginPath();
-        context.arc(left, bottom, 5, 0, Math.PI * 2);
-        context.fill();
-      }
-
       const overlay = overlayRef.current;
       if (overlay) {
         overlay.width = canvas.width;
@@ -319,7 +296,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       }
       console.error('Failed to render page:', error);
     }
-  }, [pdfDoc, currentPage, scale, showGrid, gridSize, fields, selectedField, hoveredField, clickedPosition, isSelecting]);
+  }, [pdfDoc, currentPage, scale, showGrid, gridSize, fields, selectedField, hoveredField]);
 
   // オーバーレイに選択矩形を描画
   useEffect(() => {
@@ -403,7 +380,6 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       setSelectedField(clickedField.id);
       setIsDragging(true);
       setDragStartPos({ x: canvasX, y: canvasY });
-      setClickedPosition(null);
       setSelectionStart(null);
       setSelectionEnd(null);
     } else {
@@ -487,7 +463,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
         };
         setFields((prev) => [...prev, newField]);
         setSelectedField(newField.id);
-        setClickedPosition(null);
+
       } else {
         // 矩形ドラッグ → 矩形サイズでフィールド即時作成
         const pdfPos = canvasToPdf(left, bottom);
@@ -506,7 +482,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
         };
         setFields((prev) => [...prev, newField]);
         setSelectedField(newField.id);
-        setClickedPosition(null);
+
       }
     }
 
@@ -536,44 +512,10 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     setIsSelecting(false);
   };
 
-  // フィールド追加
-  const addField = () => {
-    if (!clickedPosition || !newFieldName.trim()) return;
-
-    const pos = clickedPosition as { x: number; y: number; width?: number; height?: number };
-    const newField: FieldDefinition = {
-      id: `field_${Date.now()}`,
-      name: newFieldName.trim(),
-      type: newFieldType,
-      page: currentPage,
-      x: pos.x,
-      y: pos.y,
-      width: pos.width || (newFieldType === 'text' ? 200 : undefined),
-      height: pos.height || (newFieldType === 'text' ? 20 : undefined),
-      fontSize: 10,
-    };
-
-    setFields([...fields, newField]);
-    setNewFieldName('');
-    setClickedPosition(null);
-    setSelectionStart(null);
-    setSelectionEnd(null);
-  };
-
   // フィールド削除
   const deleteField = (id: string) => {
     setFields(fields.filter((f) => f.id !== id));
     if (selectedField === id) setSelectedField(null);
-  };
-
-  // フィールド座標更新
-  const updateFieldPosition = (id: string, dx: number, dy: number) => {
-    setFields(fields.map((f) => (f.id === id ? { ...f, x: f.x + dx, y: f.y + dy } : f)));
-  };
-
-  // フィールド座標を直接設定
-  const setFieldPosition = (id: string, x: number, y: number) => {
-    setFields(fields.map((f) => (f.id === id ? { ...f, x, y } : f)));
   };
 
   // フィールド更新（部分更新）
@@ -701,22 +643,11 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     selectedField,
     setSelectedField,
     hoveredField,
-    clickedPosition,
-    setClickedPosition,
 
     // フィールド操作
-    addField,
     deleteField,
     updateField,
     addFieldAtCenter,
-    setFieldPosition,
-    updateFieldPosition,
-
-    // 新規フィールドフォーム
-    newFieldName,
-    setNewFieldName,
-    newFieldType,
-    setNewFieldType,
 
     // グリッド
     showGrid,
