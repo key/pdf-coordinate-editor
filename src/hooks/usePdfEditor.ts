@@ -636,6 +636,31 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     reader.readAsText(file);
   };
 
+  // エディターリセット（DropZoneに戻る）
+  const resetEditor = useCallback(() => {
+    if (renderTaskRef.current) {
+      renderTaskRef.current.cancel();
+      renderTaskRef.current = null;
+    }
+    setPdfDoc(null);
+    setPdfFileName('');
+    setFields([]);
+    setSelectedField(null);
+    setCurrentPageRaw(1);
+    setTotalPages(0);
+    setPdfDimensions({ width: 0, height: 0 });
+    setHoveredField(null);
+    setIsDragging(false);
+    setIsSelecting(false);
+    setSelectionStart(null);
+    setSelectionEnd(null);
+    setDragStartPos(null);
+    setDragStartFieldPos(null);
+    setIsResizing(false);
+    setResizeStartPos(null);
+    setResizeStartSize(null);
+  }, []);
+
   useEffect(() => {
     renderPage();
   }, [renderPage]);
@@ -682,6 +707,9 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     // エクスポート/インポート
     exportJson,
     importJson,
+
+    // リセット
+    resetEditor,
 
     // 座標変換
     pdfToCanvas,
