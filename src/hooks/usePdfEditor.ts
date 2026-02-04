@@ -417,11 +417,13 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       setDragStartFieldPos({ x: clickedField.x, y: clickedField.y });
       setSelectionStart(null);
       setSelectionEnd(null);
+    } else if (selectedField) {
+      // ポップオーバーが開いている状態で空白クリック → 選択解除のみ
+      setSelectedField(null);
     } else {
       setIsSelecting(true);
       setSelectionStart({ x: canvasX, y: canvasY });
       setSelectionEnd({ x: canvasX, y: canvasY });
-      setSelectedField(null);
     }
   };
 
