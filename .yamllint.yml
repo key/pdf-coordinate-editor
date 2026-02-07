@@ -4,5 +4,4 @@ rules:
   line-length:
     max: 120
   truthy:
-    forbid-duplicated-merge-keys: true
     check-keys: false
