@@ -4,7 +4,8 @@
   "service": "app",
   "workspaceFolder": "/workspaces/pdf-form-studio",
   "features": {
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "postCreateCommand": "pnpm install",
   "customizations": {
