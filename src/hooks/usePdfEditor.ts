@@ -12,11 +12,14 @@ interface UsePdfEditorOptions {
 
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  try {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }
 
 export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
@@ -584,29 +587,25 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
       if ((document.activeElement as HTMLElement)?.isContentEditable) return;
 
       const fine = e.shiftKey; // Shift押下 = 1pt微調整
-      switch (e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, y: fine ? f.y + 1 : snapEnabled ? snapToNextGrid(f.y, 1) : f.y + 1 } : f)));
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, y: fine ? f.y - 1 : snapEnabled ? snapToNextGrid(f.y, -1) : f.y - 1 } : f)));
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, x: fine ? f.x - 1 : snapEnabled ? snapToNextGrid(f.x, -1) : f.x - 1 } : f)));
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          setFields((prev) => prev.map((f) => (f.id === selectedField ? { ...f, x: fine ? f.x + 1 : snapEnabled ? snapToNextGrid(f.x, 1) : f.x + 1 } : f)));
-          break;
-        case 'Delete':
-        case 'Backspace':
-          e.preventDefault();
-          setFields((prev) => prev.filter((f) => f.id !== selectedField));
-          setSelectedField(null);
-          break;
+      const moveField = (current: number, direction: 1 | -1): number =>
+        !fine && snapEnabled ? snapToNextGrid(current, direction) : current + direction;
+
+      const arrowMap: Record<string, { axis: 'x' | 'y'; direction: 1 | -1 }> = {
+        ArrowUp: { axis: 'y', direction: 1 },
+        ArrowDown: { axis: 'y', direction: -1 },
+        ArrowLeft: { axis: 'x', direction: -1 },
+        ArrowRight: { axis: 'x', direction: 1 },
+      };
+      const arrow = arrowMap[e.key];
+      if (arrow) {
+        e.preventDefault();
+        setFields((prev) => prev.map((f) =>
+          f.id === selectedField ? { ...f, [arrow.axis]: moveField(f[arrow.axis], arrow.direction) } : f
+        ));
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        setFields((prev) => prev.filter((f) => f.id !== selectedField));
+        setSelectedField(null);
       }
     };
 
@@ -762,7 +761,6 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
 
     // フィールド状態
     fields,
-    setFields,
     selectedField,
     setSelectedField,
     hoveredField,
