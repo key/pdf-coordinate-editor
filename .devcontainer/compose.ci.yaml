@@ -5,10 +5,3 @@ services:
       dockerfile: .devcontainer/Dockerfile
     volumes:
       - ..:/workspaces/pdf-form-studio:cached
-      - claude-code-config:/home/node/.claude
-    environment:
-      CLAUDE_CONFIG_DIR: /home/node/.claude
-    command: sleep infinity
-
-volumes:
-  claude-code-config:
