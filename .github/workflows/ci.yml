@@ -28,9 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Create external networks
-        run: docker network create traefik
-
       - name: Build and lint in dev container
         uses: devcontainers/ci@v0.3
         with:

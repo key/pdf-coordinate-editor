@@ -33,3 +33,6 @@ test-results/
 playwright-report/
 e2e/fixtures/generated/
 .claude/settings.local.json
+
+# devcontainer local overrides
+.devcontainer/compose.override.yaml
