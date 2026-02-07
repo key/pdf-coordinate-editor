@@ -9,16 +9,20 @@ PDF上のフィールド座標をGUIでマッピングする開発ツール。PD
 ## 開発コマンド
 
 ```bash
-pnpm install  # 依存関係インストール（postinstallでPDF.js workerをpublic/にコピー）
-pnpm dev      # 開発サーバー起動 (http://localhost:3000)
-pnpm build    # 本番ビルド
-pnpm lint     # ESLint実行
+pnpm install        # 依存関係インストール（postinstallでPDF.js workerをpublic/にコピー）
+pnpm dev            # 開発サーバー起動 (http://localhost:3000)
+pnpm build          # 本番ビルド
+pnpm lint           # ESLint実行
+pnpm test:e2e       # E2Eテスト実行（Playwright）
+pnpm test:e2e:ui    # E2Eテスト（UI付き）
+pnpm test:e2e:headed # E2Eテスト（ブラウザ表示付き）
+pnpm knip            # 未使用コード・依存関係の検出
 ```
 
 ## 技術スタック
 
 - Next.js 16 (App Router)
-- React 18 + TypeScript
+- React 19 + TypeScript
 - Tailwind CSS
 - pdfjs-dist 4.9.155（PDF.js）
 
@@ -44,7 +48,7 @@ pnpm lint     # ESLint実行
 
 - PDF.jsは動的インポートで読み込み（SSR回避）
 - workerは`public/pdf.worker.min.mjs`を使用（postinstallでnode_modulesからコピー）
-- `next.config.js`でcanvasモジュールを無効化（Node.js環境向けの依存を除外）
+- `next.config.ts`でcanvasモジュールを無効化（Node.js環境向けの依存を除外）
 
 ### 座標系
 
