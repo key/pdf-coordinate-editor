@@ -411,6 +411,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
     if (selectedField) {
       const field = fields.find(f => f.id === selectedField);
       if (field && isOnResizeHandle(canvasX, canvasY, field)) {
+        e.stopPropagation(); // FieldPopover の handleClickOutside が selectedField をクリアするのを防止
         setIsResizing(true);
         setResizeStartPos({ x: canvasX, y: canvasY });
         setResizeStartSize({ width: field.width ?? 0, height: field.height ?? 0 });

@@ -97,4 +97,47 @@ test.describe('フィールド編集', () => {
     expect(afterField.x).not.toBe(beforeField.x);
     expect(afterField.y).not.toBe(beforeField.y);
   });
+
+  test('リサイズハンドルでフィールドサイズを変更できる', async ({ page }) => {
+    // beforeEachで作成されたフィールドを削除して、大きめの矩形フィールドで再作成
+    await editor.deleteFieldButton.click();
+
+    // 矩形フィールドを作成（左上100,200 → 右下300,260）
+    await editor.dragOnCanvas({ x: 100, y: 200 }, { x: 300, y: 260 });
+    await expect(editor.fieldPopover).toBeVisible();
+    await editor.fieldNameInput.fill('resize_target');
+
+    // JSONエクスポートでリサイズ前のサイズを取得
+    const dlBefore = page.waitForEvent('download');
+    await editor.exportJsonButton.click();
+    const beforeBuf = await editor.readDownloadBuffer(await dlBefore);
+    const beforeJson = JSON.parse(beforeBuf.toString('utf-8'));
+    const beforeField = beforeJson.fields[0];
+
+    // JSONエクスポートのボタンクリックで selectedField がクリアされるため、
+    // フィールドを再クリックして選択状態に戻す
+    const centerX = 200;
+    const centerY = 230;
+    await editor.clickOnCanvas(centerX, centerY);
+    await expect(editor.fieldPopover).toBeVisible();
+
+    // リサイズハンドルは右上角付近（canvas座標: x=300, y=200 付近）
+    // e.stopPropagation() により handleClickOutside の干渉を防止してリサイズ実行
+    await editor.dragOnCanvas({ x: 300, y: 200 }, { x: 380, y: 180 });
+
+    // ポップオーバーが出たら閉じる
+    if (await editor.fieldPopover.isVisible()) {
+      await editor.closePopover();
+    }
+
+    // リサイズ後のサイズをJSONエクスポートで検証
+    const dlAfter = page.waitForEvent('download');
+    await editor.exportJsonButton.click();
+    const afterBuf = await editor.readDownloadBuffer(await dlAfter);
+    const afterJson = JSON.parse(afterBuf.toString('utf-8'));
+    const afterField = afterJson.fields[0];
+
+    // サイズが変化していること（幅が増加）
+    expect(afterField.width).toBeGreaterThan(beforeField.width);
+  });
 });
