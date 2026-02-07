@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { PDFDocument } from 'pdf-lib';
 import { PdfEditorPage } from './helpers/pdf-editor.page';
 
 test.describe('エクスポート・インポート', () => {
@@ -21,6 +22,38 @@ test.describe('エクスポート・インポート', () => {
     const download = await downloadPromise;
 
     expect(download.suggestedFilename()).toMatch(/\.json$/);
+  });
+
+  test('JSONエクスポートの内容にフィールド情報が含まれる', async () => {
+    // フィールドを作成して名前を変更
+    await editor.clickOnCanvas(200, 300);
+    await editor.fieldNameInput.fill('test_name');
+    await editor.closePopover();
+
+    // JSONをダウンロードして内容を検証
+    const downloadPromise = editor.page.waitForEvent('download');
+    await editor.exportJsonButton.click();
+    const download = await downloadPromise;
+
+    const stream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk as Buffer);
+    }
+    const json = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
+
+    expect(json).toHaveProperty('fields');
+    expect(json).toHaveProperty('pdfDimensions');
+    expect(json).toHaveProperty('exportedAt');
+    expect(json.fields).toHaveLength(1);
+    expect(json.fields[0]).toMatchObject({
+      name: 'test_name',
+      type: 'text',
+      page: 1,
+    });
+    // 座標が数値であること
+    expect(typeof json.fields[0].x).toBe('number');
+    expect(typeof json.fields[0].y).toBe('number');
   });
 
   test('JSONインポートでフィールドが復元される', async () => {
@@ -63,6 +96,39 @@ test.describe('エクスポート・インポート', () => {
     const download = await downloadPromise;
 
     expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+  });
+
+  test('フォームPDF出力にAcroFormフィールドが含まれる', async () => {
+    // テキストフィールドを作成して名前を設定
+    await editor.clickOnCanvas(200, 300);
+    await editor.fieldNameInput.fill('form_text');
+    await editor.closePopover();
+
+    // チェックボックスを作成して名前を設定
+    await editor.clickOnCanvas(200, 400);
+    await editor.fieldTypeCheckbox.click();
+    await editor.fieldNameInput.fill('form_check');
+    await editor.closePopover();
+
+    // PDFをダウンロードしてpdf-libで検証
+    const downloadPromise = editor.page.waitForEvent('download');
+    await editor.exportFormPdfButton.click();
+    const download = await downloadPromise;
+
+    const stream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(chunk as Buffer);
+    }
+    const pdfBytes = Buffer.concat(chunks);
+
+    const pdfDoc = await PDFDocument.load(pdfBytes);
+    const form = pdfDoc.getForm();
+    const fieldNames = form.getFields().map((f) => f.getName());
+
+    expect(fieldNames).toContain('form_text');
+    expect(fieldNames).toContain('form_check');
+    expect(fieldNames).toHaveLength(2);
   });
 
   test('フィールドなしではフォームPDFボタンが無効', async () => {
