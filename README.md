@@ -89,7 +89,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 - [Next.js](https://nextjs.org/) 16 (App Router)
 - [React](https://react.dev/) 19 + TypeScript
 - [Tailwind CSS](https://tailwindcss.com/) 4
-- [pdfjs-dist](https://mozilla.github.io/pdf.js/) 4.9.155 — PDF描画
+- [pdfjs-dist](https://mozilla.github.io/pdf.js/) 5.4.624 — PDF描画
 - [pdf-lib](https://pdf-lib.js.org/) — AcroForm付きPDF生成
 - [Playwright](https://playwright.dev/) — E2Eテスト
 
@@ -106,7 +106,7 @@ pnpm test:e2e:headed # E2Eテスト（ブラウザ表示付き）
 pnpm knip            # 未使用コード・依存関係の検出
 ```
 
-> **Note:** pdfjs-distはv4.9.155に固定。v5系はNext.js 16との互換性問題あり。devとbuildには`--webpack`フラグが必須（Turbopackとの互換性問題回避）。
+> **Note:** pdfjs-dist v5の`pdf.mjs`は内部にwebpack bootstrapコードを含むため、`pdf.min.mjs`からインポートすること。devとbuildには`--webpack`フラグが必須（Turbopackとの互換性問題回避）。
 
 ## CI
 

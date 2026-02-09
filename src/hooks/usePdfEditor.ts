@@ -25,7 +25,7 @@ function downloadBlob(blob: Blob, filename: string): void {
 export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   const renderTaskRef = useRef<RenderTask | null>(null);
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
-  const [pdfjsLib, setPdfjsLib] = useState<typeof import('pdfjs-dist') | null>(null);
+  const [pdfjsLib, setPdfjsLib] = useState<typeof import('pdfjs-dist/build/pdf.min.mjs') | null>(null);
   const [currentPage, setCurrentPageRaw] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [scale, setScale] = useState(1.5);
@@ -57,7 +57,7 @@ export function usePdfEditor({ canvasRef, overlayRef }: UsePdfEditorOptions) {
   useEffect(() => {
     const loadPdfjs = async () => {
       try {
-        const pdfjs = await import('pdfjs-dist');
+        const pdfjs = await import('pdfjs-dist/build/pdf.min.mjs');
         pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
         setPdfjsLib(pdfjs);
       } catch (error) {
