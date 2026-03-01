@@ -30,7 +30,7 @@
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "knip": "^5.83.1",
+    "knip": "^5.85.0",
     "postcss": "^8.4.0",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.0.0"
